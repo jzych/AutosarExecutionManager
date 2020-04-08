@@ -1,0 +1,21 @@
+sudo: required
+dist: bionic
+language: cpp
+
+os:
+  - linux
+
+compiler:
+  - g++
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script:
+  - make
+  - ./AutosarEM-ut
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
