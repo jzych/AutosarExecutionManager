@@ -5,4 +5,6 @@
 
 Own implementation of Autosar Execution Manager based on official specification.
 
-[ExecutionManagement AUTOSAR AP Release 17-03](https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-03/AUTOSAR_SWS_ExecutionManagement.pdf)
+[ExecutionManagement AUTOSAR AP Release 19-11](https://www.autosar.org/fileadmin/user_upload/standards/adaptive/19-11/AUTOSAR_SWS_ExecutionManagement.pdf)
+
+[Guidelines for C++14 language AUTOSAR AP Release 17-03](https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-03/AUTOSAR_RS_CPP14Guidelines.pdf)
