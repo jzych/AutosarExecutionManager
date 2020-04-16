@@ -1,0 +1,2 @@
+add_subdirectory(machine_state_client)
+add_subdirectory(machine_state_manager)
