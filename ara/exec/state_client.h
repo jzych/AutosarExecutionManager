@@ -1,0 +1,4 @@
+#ifndef ARA_STATE_CLIENT_H_
+#define ARA_STATE_CLIENT_H_
+
+#endif  // ARA_STATE_CLIENT_H_
