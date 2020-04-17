@@ -1,0 +1,4 @@
+#ifndef ARA_EXEC_ERR_DOMAIN_H_
+#define ARA_EXEC_ERR_DOMAIN_H_
+
+#endif  // ARA_EXEC_ERR_DOMAIN_H_

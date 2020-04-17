@@ -41,23 +41,29 @@ set(CMAKE_CXX_FLAGS "-g -O0 --coverage")
 
 project(AutosarEM)
 
-file(GLOB SOURCES
-    inc/*.hpp
-    src/*.cpp
+file(GLOB EM_SOURCES
+    main.cpp
+    ara/exec/*.h
+    ara/exec/*.cpp
+    ara/core/*.h
+    ara/com/*.h
+    ara/com/*.cpp
 )
 
-add_executable(AutosarEM ${SOURCES})
+add_executable(AutosarEM ${EM_SOURCES})
 target_link_libraries(AutosarEM pthread)
-target_include_directories(AutosarEM PRIVATE inc/)
+target_include_directories(AutosarEM PRIVATE ara/exec/ ara/com/ ara/core/)
 target_compile_options(AutosarEM PRIVATE -Wall -Werror -Wpedantic -Wextra)
 
 file(GLOB TEST_SOURCES
-    inc/*.hpp
-    src/*.cpp
+    ara/exec/*.h
+    ara/exec/*.cpp
+    ara/core/*.h
+    ara/com/*.h
+    ara/com/*.cpp
     test/*.cpp
 )
-list(FILTER TEST_SOURCES EXCLUDE REGEX ".*src/main.cpp$")
 
 link_libraries(gtest)
 add_executable(${PROJECT_NAME}-ut ${TEST_SOURCES})
-target_include_directories(${PROJECT_NAME}-ut PRIVATE inc/)
+target_include_directories(${PROJECT_NAME}-ut PRIVATE ara/exec/ ara/com/ ara/core/)
