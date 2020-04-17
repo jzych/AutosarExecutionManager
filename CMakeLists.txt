@@ -1,28 +1,31 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Download and unpack googletest at configure time
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+# Download and unpack external dependecies at configure time
+configure_file(CMakeLists.txt.in external/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
     RESULT_VARIABLE result
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/external)
 if(result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    message(FATAL_ERROR "CMake step for externals failed: ${result}")
 endif()
 execute_process(COMMAND ${CMAKE_COMMAND} --build .
     RESULT_VARIABLE result
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/external)
 if(result)
-    message(FATAL_ERROR "Build step for googletest failed: ${result}")
+    message(FATAL_ERROR "Build step for externals failed: ${result}")
 endif()
 
 # Prevent overriding the parent project's compiler/linker
 # settings on Windows
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-# Add googletest directly to our build. This defines
-# the gtest and gtest_main targets.
-add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
-                ${CMAKE_BINARY_DIR}/googletest-build
+# Add external dependencies directly to our build.
+add_subdirectory(${CMAKE_BINARY_DIR}/external/googletest-src
+                ${CMAKE_BINARY_DIR}/external/googletest-build
+                EXCLUDE_FROM_ALL)
+
+add_subdirectory(${CMAKE_BINARY_DIR}/external/nlohmann_json-src
+                ${CMAKE_BINARY_DIR}/external/nlohmann_json-build
                 EXCLUDE_FROM_ALL)
 
 # The gtest/gtest_main targets carry header search path
@@ -31,8 +34,6 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
 if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif()
-
-# Now simply link against gtest or gtest_main as needed.
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -43,21 +44,25 @@ project(AutosarEM)
 
 file(GLOB EM_SOURCES
     main.cpp
-    ara/exec/*.h
-    ara/exec/*.cpp
+    ara/exec/**/*.h
+    ara/exec/**/*.cpp
+    # ara/exec/parser/*.h
+    # ara/exec/parser/*.cpp
     ara/core/*.h
     ara/com/*.h
     ara/com/*.cpp
 )
 
-add_executable(AutosarEM ${EM_SOURCES})
-target_link_libraries(AutosarEM pthread)
-target_include_directories(AutosarEM PRIVATE ara/exec/ ara/com/ ara/core/)
-target_compile_options(AutosarEM PRIVATE -Wall -Werror -Wpedantic -Wextra)
+add_executable(${PROJECT_NAME} ${EM_SOURCES})
+target_link_libraries(${PROJECT_NAME} pthread nlohmann_json)
+target_include_directories(${PROJECT_NAME} PRIVATE ara/exec/ ara/exec/praser/ ara/com/ ara/core/)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -Wpedantic -Wextra)
 
 file(GLOB TEST_SOURCES
-    ara/exec/*.h
-    ara/exec/*.cpp
+    ara/exec/**/*.h
+    ara/exec/**/*.cpp
+    # ara/exec/parser/*.h
+    # ara/exec/parser/*.cpp
     ara/core/*.h
     ara/com/*.h
     ara/com/*.cpp
@@ -66,4 +71,5 @@ file(GLOB TEST_SOURCES
 
 link_libraries(gtest)
 add_executable(${PROJECT_NAME}-ut ${TEST_SOURCES})
-target_include_directories(${PROJECT_NAME}-ut PRIVATE ara/exec/ ara/com/ ara/core/)
+target_include_directories(${PROJECT_NAME}-ut PRIVATE ara/exec/ ara/exec/parser/ ara/com/ ara/core/)
+target_link_libraries(${PROJECT_NAME}-ut nlohmann_json)
