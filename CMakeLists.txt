@@ -46,8 +46,6 @@ file(GLOB EM_SOURCES
     main.cpp
     ara/exec/**/*.h
     ara/exec/**/*.cpp
-    # ara/exec/parser/*.h
-    # ara/exec/parser/*.cpp
     ara/core/*.h
     ara/com/*.h
     ara/com/*.cpp
@@ -61,8 +59,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -Wpedantic -Wextra)
 file(GLOB TEST_SOURCES
     ara/exec/**/*.h
     ara/exec/**/*.cpp
-    # ara/exec/parser/*.h
-    # ara/exec/parser/*.cpp
     ara/core/*.h
     ara/com/*.h
     ara/com/*.cpp
