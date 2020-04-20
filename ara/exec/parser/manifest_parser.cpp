@@ -11,64 +11,6 @@ namespace parser {
 
 using json = nlohmann::json;
 
-/* bool ExecutionManifest::operator==(const ExecutionManifest& other) const noexcept */
-// {
-//     return (manifest_id == other.manifest_id) && (processes == other.processes);
-// }
-//
-// bool ExecutionManifest::operator!=(const ExecutionManifest& other) const noexcept
-// {
-//     return !(*this == other);
-// }
-//
-// bool ExecutionManifest::Process::operator==(const Process& other) const noexcept
-// {
-//     return (name == other.name) && (startup_configs == other.startup_configs);
-// }
-//
-// bool ExecutionManifest::Process::operator!=(const Process& other) const noexcept
-// {
-//     return !(*this == other);
-// }
-//
-// bool ExecutionManifest::Process::StartupConfig::operator==(const StartupConfig& other) const
-//     noexcept
-// {
-//     return (startup_options == other.startup_options) &&
-//            (machine_instance_refs == other.machine_instance_refs);
-// }
-//
-// bool ExecutionManifest::Process::StartupConfig::operator!=(const StartupConfig& other) const
-//     noexcept
-// {
-//     return !(*this == other);
-// }
-//
-// bool ExecutionManifest::Process::StartupConfig::StartupOption::operator==(
-//     const StartupOption& other) const noexcept
-// {
-//     return (kind == other.kind) && (name == other.name) && (arg == other.arg);
-// }
-//
-// bool ExecutionManifest::Process::StartupConfig::StartupOption::operator!=(
-//     const StartupOption& other) const noexcept
-// {
-//     return !(*this == other);
-// }
-//
-// bool ExecutionManifest::Process::StartupConfig::MachineInstanceRef::operator==(
-//     const MachineInstanceRef& other) const noexcept
-// {
-//     return (function_group == other.function_group) && (mode == other.mode);
-// }
-//
-// bool ExecutionManifest::Process::StartupConfig::MachineInstanceRef::operator!=(
-//     const MachineInstanceRef& other) const noexcept
-// {
-//     return !(*this == other);
-// }
-/*  */
-
 namespace {
 namespace EMJsonKeys {
 const std::string kApplicationManifest = "Application_manifest";

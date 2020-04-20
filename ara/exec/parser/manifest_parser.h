@@ -10,50 +10,6 @@ namespace parser {
 
 struct ExecutionManifest
 {
-    /*     struct Process */
-    // {
-    //     struct StartupConfig
-    //     {
-    //         struct StartupOption
-    //         {
-    //             std::string kind{};
-    //             std::string name{};
-    //             std::string arg{};
-    //             bool operator==(const StartupOption&) const noexcept;
-    //             bool operator!=(const StartupOption&) const noexcept;
-    //         };
-    //
-    //         struct MachineInstanceRef
-    //         {
-    //             std::string function_group{};
-    //             std::string mode{};
-    //             bool operator==(const MachineInstanceRef&) const noexcept;
-    //             bool operator!=(const MachineInstanceRef&) const noexcept;
-    //         };
-    //
-    //         std::vector<StartupOption> startup_options{};
-    //         std::vector<MachineInstanceRef> machine_instance_refs{};
-    //         bool operator==(const StartupConfig&) const noexcept;
-    //         bool operator!=(const StartupConfig&) const noexcept;
-    //     };
-    //
-    //     std::string name{};
-    //     std::vector<StartupConfig> startup_configs{};
-    /*  */
-    // bool operator==(const Process&) const noexcept;
-    // bool operator!=(const Process&) const noexcept;
-    // };
-
-    // ExecutionManifest() = default;
-    // ~ExecutionManifest() = default;
-    // ExecutionManifest(const ExecutionManifest& other) {*this = other;}
-    // ExecutionManifest& operator=(const ExecutionManifest&) = default;
-    // std::string manifest_id{};
-    // std::vector<Process> processes{};
-
-    // bool operator==(const ExecutionManifest&) const noexcept;
-    // bool operator!=(const ExecutionManifest&) const noexcept;
-
     // TODO add proper members
 
     bool operator==(const ExecutionManifest&) const noexcept
