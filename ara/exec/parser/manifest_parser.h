@@ -1,6 +1,7 @@
 #ifndef ARA_EXEC_PARSER_MANIFEST_PARSER_H_
 #define ARA_EXEC_PARSER_MANIFEST_PARSER_H_
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -10,16 +11,45 @@ namespace parser {
 
 struct ExecutionManifest
 {
-    // TODO add proper members
+    struct Process
+    {
+        struct StartupConfig
+        {
+            struct StartupOption
+            {
+                std::string kind{};
+                std::string name{};
+                std::string arg{};
+                bool operator==(const StartupOption&) const noexcept;
+                bool operator!=(const StartupOption&) const noexcept;
+            };
 
-    bool operator==(const ExecutionManifest&) const noexcept
-    {
-        return true;
-    }
-    bool operator!=(const ExecutionManifest& other) const noexcept
-    {
-        return !(*this == other);
-    }
+            struct MachineInstanceRef
+            {
+                std::string function_group{};
+                std::string mode{};
+                bool operator==(const MachineInstanceRef&) const noexcept;
+                bool operator!=(const MachineInstanceRef&) const noexcept;
+            };
+
+            std::vector<StartupOption> startup_options{};
+            std::vector<MachineInstanceRef> machine_instance_refs{};
+            bool operator==(const StartupConfig&) const noexcept;
+            bool operator!=(const StartupConfig&) const noexcept;
+        };
+
+        std::string name{};
+        std::vector<StartupConfig> startup_configs{};
+
+        bool operator==(const Process&) const noexcept;
+        bool operator!=(const Process&) const noexcept;
+    };
+
+    std::string manifest_id{};
+    std::vector<Process> processes{};
+
+    bool operator==(const ExecutionManifest&) const noexcept;
+    bool operator!=(const ExecutionManifest&) const noexcept;
 };
 
 struct MachineManifest
@@ -36,47 +66,46 @@ struct MachineManifest
     }
 };
 
-class Manifest  // Simple union wrapper- no std::variant in c++14
+class Manifest
 {
 public:
     enum class Type { kExecution, kMachine, kUnknown };
 
 public:
-    Manifest(){};
     Type get_type() const
     {
         return type_;
     }
-    ExecutionManifest get_execution() const
+
+    const ExecutionManifest* get_execution() const
     {
-        return exec_man;
-    }
-    MachineManifest get_machine() const
-    {
-        return mach_man;
+        return exec_man.get();
     }
 
-    void set_execution(const ExecutionManifest& man)
+    const MachineManifest& get_machine() const
+    {
+        return *mach_man;
+    }
+
+    void set_execution(std::unique_ptr<ExecutionManifest> man)
     {
         type_ = Type::kExecution;
-        exec_man = man;
+        exec_man = std::move(man);
     }
-    void set_machine(const MachineManifest& man)
+
+    void set_machine(std::unique_ptr<MachineManifest> man)
     {
         type_ = Type::kMachine;
-        mach_man = man;
+        mach_man = std::move(man);
     }
 
 private:
     Type type_{Type::kUnknown};
-    union
-    {
-        ExecutionManifest exec_man;
-        MachineManifest mach_man;
-    };
+    std::unique_ptr<ExecutionManifest> exec_man{};
+    std::unique_ptr<MachineManifest> mach_man{};
 };
 
-Manifest parse_manifest(const std::string& /*path*/) noexcept(false);
+Manifest parse_manifest(const std::string& path) noexcept(false);
 
 }  // namespace parser
 }  // namespace exec
