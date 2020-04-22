@@ -3,7 +3,6 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <stdexcept>
-#include <vector>
 
 namespace ara {
 namespace exec {
