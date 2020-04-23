@@ -36,12 +36,9 @@ TEST(AraExecParserParseManifest, EmptyExecutionManifestFileExceptionThrown)
     const std::string manifest_path{"empty_manifest.json"};  // empty file
     const std::string manifest_content{""};
     ManifestParser mp{};
-    if (create_manifest(manifest_path, manifest_content)) {
-        EXPECT_THROW(mp.parse_execution_manifest(manifest_path), std::runtime_error);
-    }
-    else {
-        ASSERT_TRUE(false) << "Unable to create test manifest";
-    }
+    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
+        << "Unable to create test manifest";
+    EXPECT_THROW(mp.parse_execution_manifest(manifest_path), std::runtime_error);
 }
 
 TEST(AraExecParserParseManifest, EmptyMachineManifestFileExceptionThrown)
@@ -49,10 +46,7 @@ TEST(AraExecParserParseManifest, EmptyMachineManifestFileExceptionThrown)
     const std::string manifest_path{"empty_manifest.json"};  // empty file
     const std::string manifest_content{""};
     ManifestParser mp{};
-    if (create_manifest(manifest_path, manifest_content)) {
-        EXPECT_THROW(mp.parse_machine_manifest(manifest_path), std::runtime_error);
-    }
-    else {
-        ASSERT_TRUE(false) << "Unable to create test manifest";
-    }
+    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
+        << "Unable to create test manifest";
+    EXPECT_THROW(mp.parse_machine_manifest(manifest_path), std::runtime_error);
 }
