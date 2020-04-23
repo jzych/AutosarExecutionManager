@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
-#include <nlohmann/json.hpp>
 #include <stdexcept>
+
 #include "gtest/gtest.h"
 #include "manifest_parser.h"
 
@@ -17,30 +17,40 @@ bool create_manifest(const std::string& path, const std::string& content)
     return true;
 }
 
-TEST(AraExecParserParseManifest, InvalidManifestFileExceptionThrown)
+TEST(AraExecParserParseManifest, InvalidExecutionManifestFileExceptionThrown)
 {
-    const std::string manifest_path{"invalid_file.json"};  // not existing file
-    EXPECT_THROW(parse_manifest(manifest_path), std::runtime_error);
+    const std::string manifest_path{"noexisting_execution_manifest.json"};  // not existing file
+    ManifestParser mp{};
+    EXPECT_THROW(mp.parse_execution_manifest(manifest_path), std::runtime_error);
 }
 
-TEST(AraExecParserParseManifest, EmptyManifestFileExceptionThrown)
+TEST(AraExecParserParseManifest, InvalidMachineManifestFileExceptionThrown)
+{
+    const std::string manifest_path{"noexisting_machine_manifest.json"};  // not existing file
+    ManifestParser mp{};
+    EXPECT_THROW(mp.parse_machine_manifest(manifest_path), std::runtime_error);
+}
+
+TEST(AraExecParserParseManifest, EmptyExecutionManifestFileExceptionThrown)
 {
     const std::string manifest_path{"empty_manifest.json"};  // empty file
     const std::string manifest_content{""};
+    ManifestParser mp{};
     if (create_manifest(manifest_path, manifest_content)) {
-        EXPECT_THROW(parse_manifest(manifest_path), std::runtime_error);
+        EXPECT_THROW(mp.parse_execution_manifest(manifest_path), std::runtime_error);
     }
     else {
         ASSERT_TRUE(false) << "Unable to create test manifest";
     }
 }
 
-TEST(AraExecParserParseManifest, UnknownManifestTypeExceptionThrown)
+TEST(AraExecParserParseManifest, EmptyMachineManifestFileExceptionThrown)
 {
-    const std::string manifest_path{"manifest_parser_unknown_type.json"};
-    const std::string manifest_content{"{\"Unknown_manifest\":{}}"};
+    const std::string manifest_path{"empty_manifest.json"};  // empty file
+    const std::string manifest_content{""};
+    ManifestParser mp{};
     if (create_manifest(manifest_path, manifest_content)) {
-        EXPECT_THROW(parse_manifest(manifest_path), std::runtime_error);
+        EXPECT_THROW(mp.parse_machine_manifest(manifest_path), std::runtime_error);
     }
     else {
         ASSERT_TRUE(false) << "Unable to create test manifest";

@@ -1,34 +1,20 @@
 #include "manifest_parser.h"
+
 #include <fstream>
 #include <iostream>
-#include <nlohmann/json.hpp>
 #include <stdexcept>
 
 namespace ara {
 namespace exec {
 namespace parser {
 
-using json = nlohmann::json;
-
 namespace {
+
 namespace EMJsonKeys {
 const std::string kApplicationManifest = "Application_manifest";
-const std::string kApplicationManifestId = "Application_manifest_id";
-// const std::string kProcess = "Process";
-// const std::string kProcessName = "Process_name";
-// const std::string kModeDependentStartupConfigs = "Mode_dependent_startup_configs";
-// const std::string kStartupOptions = "Startup_options";
-// const std::string kStartupOptionsOptionKind = "Option_kind";
-// const std::string kStartupOptionsOptionName = "Option_name";
-// const std::string kStartupOptionsOptionArg = "Option_arg";
-// const std::string kModeInMachineInstanceRefs = "Mode_in_machine_instance_refs";
-// const std::string kFunctionGroup = "Function_group";
-// const std::string kMode = "Mode";
 // TODO add rest of the keys
 
-const std::vector<std::string> kAsVector{kApplicationManifest,
-                                         kApplicationManifestId /* TODO add rest of the keys */};
-
+const std::vector<std::string> kAsVector{kApplicationManifest /* TODO add rest of the keys */};
 }  // namespace EMJsonKeys
 
 namespace MMJsonKeys {
@@ -54,25 +40,31 @@ bool try_to_read_value(const json& json_obj, const std::string& key, T& output_v
     return true;
 }
 
-bool validate_manifest(const json& /* json_obj */, const std::vector<std::string>& /* keys */)
+ExecutionManifest ManifestParser::parse_execution_manifest(const std::string& path) noexcept(false)
 {
-    // TODO implement this method
-    return true;
-}
+    using namespace EMJsonKeys;
+    auto manifest_json{read_manifest_file(path)};
 
-ExecutionManifest parse_execution_manifest(const json& /* json_obj */)
-{
-    // TODO implement this method
+    validate_content(manifest_json, kAsVector);
+
+    // TODO implement rest of the method
+
     return ExecutionManifest();
 }
 
-MachineManifest parse_machine_manifest(const json& /* json_obj */)
+MachineManifest ManifestParser::parse_machine_manifest(const std::string& path) noexcept(false)
 {
-    // TODO implement this method
+    using namespace MMJsonKeys;
+    auto manifest_json{read_manifest_file(path)};
+
+    validate_content(manifest_json, kAsVector);
+
+    // TODO implement rest of the method
+
     return MachineManifest();
 }
 
-Manifest parse_manifest(const std::string& path) noexcept(false)
+json ManifestParser::read_manifest_file(const std::string& path) noexcept(false)
 {
     std::ifstream manifest_content(path, std::ifstream::binary);
     if (not manifest_content.is_open()) {
@@ -80,40 +72,26 @@ Manifest parse_manifest(const std::string& path) noexcept(false)
             "ara::com::exec::parser::parse_manifest -> cannot open manifest: " + path + "\n");
     }
 
-    Manifest ret_val;
+    json manifest_json;
 
     try {
-        json manifest_json;
         manifest_content >> manifest_json;
-        manifest_content.close();
-
-        std::string manifest_type{};
-        if (try_to_read_value(manifest_json, EMJsonKeys::kApplicationManifest, manifest_type)) {
-            if (validate_manifest(manifest_json.at(EMJsonKeys::kApplicationManifest),
-                                  EMJsonKeys::kAsVector)) {
-                ret_val.set_execution(
-                    parse_execution_manifest(manifest_json.at(EMJsonKeys::kApplicationManifest)));
-            }
-        }
-        else if (try_to_read_value(manifest_json, MMJsonKeys::kMachineManifest, manifest_type)) {
-            if (validate_manifest(manifest_json.at(MMJsonKeys::kMachineManifest),
-                                  MMJsonKeys::kAsVector)) {
-                ret_val.set_machine(
-                    parse_machine_manifest(manifest_json.at(MMJsonKeys::kMachineManifest)));
-            }
-        }
-        else {
-            throw std::runtime_error(
-                "ara::exec::parser::parse_manifest -> unknown manifest type in " + path + '\n');
-        }
-
     } catch (json::exception& e) {
+        manifest_content.close();
         throw std::runtime_error(
-            "ara::exec::parser::parse_manifest -> error during parsing manifest " + path +
-            "\tFollowing exception occured: " + e.what() + '\n');
+            "ManifestParser::read_manifest_file -> cannot read manifest file. " +
+            std::string(e.what()));
     }
 
-    return ret_val;
+    manifest_content.close();
+    return manifest_json;
+}
+
+void ManifestParser::validate_content(const json& /*json_obj*/,
+                                      const std::vector<std::string>& /*json_keys*/) const
+    noexcept(false)
+{
+    // If validation will end with failure, this method will throw std::runtime_error
 }
 
 }  // namespace parser
