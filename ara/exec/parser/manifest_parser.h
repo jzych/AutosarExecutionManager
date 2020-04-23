@@ -24,14 +24,15 @@ struct MachineManifest
 class IManifestParser
 {
 public:
+    virtual ~IManifestParser() noexcept = default;
     virtual ExecutionManifest parse_execution_manifest(const std::string& path) noexcept(false) = 0;
     virtual MachineManifest parse_machine_manifest(const std::string& path) noexcept(false) = 0;
-    virtual ~IManifestParser() noexcept = default;
 };
 
 class ManifestParser : public IManifestParser
 {
 public:
+    virtual ~ManifestParser() noexcept = default;
     virtual ExecutionManifest parse_execution_manifest(const std::string& path) noexcept(
         false) override;
 
