@@ -6,24 +6,6 @@
 #include "manifest_parser.h"
 
 using namespace ara::exec::parser;
-using json = nlohmann::json;
-
-bool create_manifest(const std::string& path, const std::string& content)
-{
-    std::ofstream output(path, std::ofstream::binary);
-    if (not output.is_open())
-        return false;
-    try {
-        auto j{json::parse(content)};
-        std::cout << std::setw(4) << j << std::endl;
-
-    } catch (json::exception& e) {
-        return true;
-    }
-    output << content << std::endl;
-    output.close();
-    return true;
-}
 
 TEST(AraExecParserParseManifest, InvalidExecutionManifestFileExceptionThrown)
 {
@@ -41,27 +23,21 @@ TEST(AraExecParserParseManifest, InvalidMachineManifestFileExceptionThrown)
 
 TEST(AraExecParserParseManifest, EmptyExecutionManifestFileExceptionThrown)
 {
-    const std::string manifest_path{"empty_manifest.json"};  // empty file
-    const std::string manifest_content{""};
+    const std::string manifest_path{"../test/manifests/empty_manifest.json"};
     ManifestParser mp{};
-    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
-        << "Unable to create test manifest";
     EXPECT_THROW(mp.parse_execution_manifest(manifest_path), std::runtime_error);
 }
 
 TEST(AraExecParserParseManifest, EmptyMachineManifestFileExceptionThrown)
 {
-    const std::string manifest_path{"empty_manifest.json"};  // empty file
-    const std::string manifest_content{""};
+    const std::string manifest_path{"../test/manifests/empty_manifest.json"};
     ManifestParser mp{};
-    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
-        << "Unable to create test manifest";
     EXPECT_THROW(mp.parse_machine_manifest(manifest_path), std::runtime_error);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestAllKeysUsedSuccess)
 {
-    const std::string manifest_path{"execution_manifest.json"};
+    const std::string manifest_path{"../test/manifests/execution_manifest_all_keys.json"};
 
     const std::string manifest_id{"test_app"};
     const std::string option_kind1{"commandLineShortForm"};
@@ -86,60 +62,15 @@ TEST(AraExecParserParseManifest, ExecutionManifestAllKeysUsedSuccess)
     expected_manifest.processes.push_back(process);
     expected_manifest.manifest_id = manifest_id;
 
-    // Prepare manifest content
-    const std::string manifest_content{
-
-        "{\"Application_manifest\": {\
-        \"Application_manifest_id\": \"" +
-        manifest_id +
-        "\",\
-        \"Process\": [ \
-            { \
-                \"Mode_dependent_startup_configs\": [ \
-                    { \
-                        \"Startup_options\": [ \
-                            { \
-                                \"Option_kind\": \"" +
-        option_kind1 +
-        "\",\
-                                \"Option_name\": \"" +
-        option_name1 +
-        "\",\
-                                \"Option_arg\": \"" +
-        option_arg1 +
-        "\"\
-                            } \
-                        ], \
-                        \"Mode_in_machine_instance_refs\": [ \
-                            { \
-                                \"Function_group\": \"" +
-        function_group +
-        "\",\
-                                \"Mode\": \"" +
-        mode1 +
-        "\"\
-                            } \
-                        ] \
-                    } \
-                ], \
-                \"Process_name\": \"" +
-        process_name +
-        "\"\
-            } \
-        ]\
-    }\
-  }"};
-
     ManifestParser mp{};
-    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
-        << "Unable to create test manifest";
     auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
     ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestManifestIdMissingSuccess)
 {
-    const std::string manifest_path{"execution_manifest.json"};
+    const std::string manifest_path{
+        "../test/manifests/execution_manifest_missing_manifest_id.json"};
 
     const std::string option_kind1{"commandLineShortForm"};
     const std::string option_name1{"name"};
@@ -162,57 +93,15 @@ TEST(AraExecParserParseManifest, ExecutionManifestManifestIdMissingSuccess)
     process.name = process_name;
     expected_manifest.processes.push_back(process);
 
-    // Prepare manifest content
-    const std::string manifest_content{
-
-        "{\"Application_manifest\": {\
-        \"Process\": [ \
-            { \
-                \"Mode_dependent_startup_configs\": [ \
-                    { \
-                        \"Startup_options\": [ \
-                            { \
-                                \"Option_kind\": \"" +
-        option_kind1 +
-        "\",\
-                                \"Option_name\": \"" +
-        option_name1 +
-        "\",\
-                                \"Option_arg\": \"" +
-        option_arg1 +
-        "\"\
-                            } \
-                        ], \
-                        \"Mode_in_machine_instance_refs\": [ \
-                            { \
-                                \"Function_group\": \"" +
-        function_group +
-        "\",\
-                                \"Mode\": \"" +
-        mode1 +
-        "\"\
-                            } \
-                        ] \
-                    } \
-                ], \
-                \"Process_name\": \"" +
-        process_name +
-        "\"\
-            } \
-        ]\
-    }\
-  }"};
-
     ManifestParser mp{};
-    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
-        << "Unable to create test manifest";
     auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
     ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestStartupConfigsSectionMissingSuccess)
 {
-    const std::string manifest_path{"execution_manifest.json"};
+    const std::string manifest_path{
+        "../test/manifests/execution_manifest_missing_startup_configs_section.json"};
 
     const std::string manifest_id{"test_app"};
     const std::string process_name{"Proc_1"};
@@ -224,33 +113,15 @@ TEST(AraExecParserParseManifest, ExecutionManifestStartupConfigsSectionMissingSu
     expected_manifest.processes.push_back(process);
     expected_manifest.manifest_id = manifest_id;
 
-    // Prepare manifest content
-    const std::string manifest_content{
-
-        "{\"Application_manifest\": {\
-        \"Application_manifest_id\": \"" +
-        manifest_id +
-        "\",\
-        \"Process\": [ \
-            { \
-                \"Process_name\": \"" +
-        process_name +
-        "\"\
-            } \
-        ]\
-    }\
-  }"};
-
     ManifestParser mp{};
-    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
-        << "Unable to create test manifest";
     auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
     ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestStartupOptionsSectionMissingSuccess)
 {
-    const std::string manifest_path{"execution_manifest.json"};
+    const std::string manifest_path{
+        "../test/manifests/execution_manifest_missing_startup_options_section.json"};
 
     const std::string manifest_id{"test_app"};
     const std::string function_group{"MachineState"};
@@ -269,47 +140,15 @@ TEST(AraExecParserParseManifest, ExecutionManifestStartupOptionsSectionMissingSu
     expected_manifest.processes.push_back(process);
     expected_manifest.manifest_id = manifest_id;
 
-    // Prepare manifest content
-    const std::string manifest_content{
-
-        "{\"Application_manifest\": {\
-        \"Application_manifest_id\": \"" +
-        manifest_id +
-        "\",\
-        \"Process\": [ \
-            { \
-                \"Mode_dependent_startup_configs\": [ \
-                    { \
-                        \"Mode_in_machine_instance_refs\": [ \
-                            { \
-                                \"Function_group\": \"" +
-        function_group +
-        "\",\
-                                \"Mode\": \"" +
-        mode1 +
-        "\"\
-                            } \
-                        ] \
-                    } \
-                ], \
-                \"Process_name\": \"" +
-        process_name +
-        "\"\
-            } \
-        ]\
-    }\
-  }"};
-
     ManifestParser mp{};
-    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
-        << "Unable to create test manifest";
     auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
     ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
-TEST(AraExecParserParseManifest, ExecutionManifestMachineInstanceRefsSuccess)
+TEST(AraExecParserParseManifest, ExecutionManifestMachineInstanceRefsSectionMissingSuccess)
 {
-    const std::string manifest_path{"execution_manifest.json"};
+    const std::string manifest_path{
+        "../test/manifests/execution_manifest_missing_machine_instance_refs_section.json"};
 
     const std::string manifest_id{"test_app"};
     const std::string option_kind1{"commandLineShortForm"};
@@ -329,50 +168,15 @@ TEST(AraExecParserParseManifest, ExecutionManifestMachineInstanceRefsSuccess)
     expected_manifest.processes.push_back(process);
     expected_manifest.manifest_id = manifest_id;
 
-    // Prepare manifest content
-    const std::string manifest_content{
-
-        "{\"Application_manifest\": {\
-        \"Application_manifest_id\": \"" +
-        manifest_id +
-        "\",\
-        \"Process\": [ \
-            { \
-                \"Mode_dependent_startup_configs\": [ \
-                    { \
-                        \"Startup_options\": [ \
-                            { \
-                                \"Option_kind\": \"" +
-        option_kind1 +
-        "\",\
-                                \"Option_name\": \"" +
-        option_name1 +
-        "\",\
-                                \"Option_arg\": \"" +
-        option_arg1 +
-        "\"\
-                            } \
-                        ] \
-                    } \
-                ], \
-                \"Process_name\": \"" +
-        process_name +
-        "\"\
-            } \
-        ]\
-    }\
-  }"};
-
     ManifestParser mp{};
-    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
-        << "Unable to create test manifest";
     auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
     ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestProcessNameMissingSuccess)
 {
-    const std::string manifest_path{"execution_manifest.json"};
+    const std::string manifest_path{
+        "../test/manifests/execution_manifest_missing_process_name.json"};
 
     const std::string manifest_id{"test_app"};
     const std::string option_kind1{"commandLineShortForm"};
@@ -395,70 +199,22 @@ TEST(AraExecParserParseManifest, ExecutionManifestProcessNameMissingSuccess)
     expected_manifest.processes.push_back(process);
     expected_manifest.manifest_id = manifest_id;
 
-    // Prepare manifest content
-    const std::string manifest_content{
-
-        "{\"Application_manifest\": {\
-        \"Application_manifest_id\": \"" +
-        manifest_id +
-        "\",\
-        \"Process\": [ \
-            { \
-                \"Mode_dependent_startup_configs\": [ \
-                    { \
-                        \"Startup_options\": [ \
-                            { \
-                                \"Option_kind\": \"" +
-        option_kind1 +
-        "\",\
-                                \"Option_name\": \"" +
-        option_name1 +
-        "\",\
-                                \"Option_arg\": \"" +
-        option_arg1 +
-        "\"\
-                            } \
-                        ], \
-                        \"Mode_in_machine_instance_refs\": [ \
-                            { \
-                                \"Function_group\": \"" +
-        function_group +
-        "\",\
-                                \"Mode\": \"" +
-        mode1 +
-        "\"\
-                            } \
-                        ] \
-                    } \
-                ] \
-            } \
-        ]\
-    }\
-  }"};
-
     ManifestParser mp{};
-    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
-        << "Unable to create test manifest";
     auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
     ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestProcessSectionMissingSuccess)
 {
-    const std::string manifest_path{"execution_manifest.json"};
+    const std::string manifest_path{
+        "../test/manifests/execution_manifest_missing_process_section.json"};
 
     const std::string manifest_id{"test_app"};
     // Prepare expected manifest object
     ExecutionManifest expected_manifest{};
     expected_manifest.manifest_id = manifest_id;
 
-    // Prepare manifest content
-    const std::string manifest_content{
-        "{\"Application_manifest\": { \"Application_manifest_id\": \"" + manifest_id + "\"}}"};
-
     ManifestParser mp{};
-    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
-        << "Unable to create test manifest";
     auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
     ASSERT_EQ(expected_manifest, obtained_manifest);
 }
