@@ -30,15 +30,15 @@ bool ExecutionManifest::Process::operator!=(const Process& other) const noexcept
     return !(*this == other);
 }
 
-bool ExecutionManifest::Process::StartupConfig::operator==(
-    const StartupConfig& other) const noexcept
+bool ExecutionManifest::Process::StartupConfig::operator==(const StartupConfig& other) const
+    noexcept
 {
     return (startup_options == other.startup_options) &&
            (machine_instance_refs == other.machine_instance_refs);
 }
 
-bool ExecutionManifest::Process::StartupConfig::operator!=(
-    const StartupConfig& other) const noexcept
+bool ExecutionManifest::Process::StartupConfig::operator!=(const StartupConfig& other) const
+    noexcept
 {
     return !(*this == other);
 }
@@ -107,16 +107,17 @@ const std::vector<std::string> kAsVector{kMachineManifest /* TODO add rest of th
 }  // anonymous namespace
 
 template <typename T>
-bool try_to_read_value(const json& json_obj, const std::string& key, T& output_value) noexcept
+bool read_value(const json& json_obj, const std::string& key, T& output_value) noexcept
 {
     T tmp{};
     try {
         tmp = json_obj.at(key);
-    } catch (json::exception& e) {
-        std::cerr << "ara::exec::parser::try_to_read_value -> " << e.what()
-                  << '\n';  // development purposes
+    } catch (json::out_of_range& e) {
+        return false;
+    } catch (json::type_error& e) {
         return false;
     }
+
     output_value = tmp;
     return true;
 }
@@ -129,45 +130,43 @@ ExecutionManifest ManifestParser::parse_execution_manifest(const std::string& pa
     validate_content(manifest_json_full, kAsVector);
 
     json manifest_json_content{};
-    try_to_read_value(manifest_json_full, kApplicationManifest, manifest_json_content);
+    read_value(manifest_json_full, kApplicationManifest, manifest_json_content);
 
-    try_to_read_value(manifest_json_content, kApplicationManifestId, man.manifest_id);
+    read_value(manifest_json_content, kApplicationManifestId, man.manifest_id);
 
     json processes{};
-    if (try_to_read_value(manifest_json_content, kProcess, processes)) {
+    if (read_value(manifest_json_content, kProcess, processes)) {
         for (auto& process : processes) {
             ExecutionManifest::Process proc{};
-            try_to_read_value(process, kProcessName, proc.name);
+            read_value(process, kProcessName, proc.name);
 
             json startup_configs{};
-            if (try_to_read_value(process, kModeDependentStartupConfigs, startup_configs)) {
+            if (read_value(process, kModeDependentStartupConfigs, startup_configs)) {
                 for (auto& startup_config : startup_configs) {
                     ExecutionManifest::Process::StartupConfig config{};
 
                     json startup_options{};
-                    if (try_to_read_value(startup_config, kStartupOptions, startup_options)) {
+                    if (read_value(startup_config, kStartupOptions, startup_options)) {
                         for (auto& startup_option : startup_options) {
                             ExecutionManifest::Process::StartupConfig::StartupOption option{};
 
-                            try_to_read_value(startup_option, kStartupOptionsOptionKind,
-                                              option.kind);
-                            try_to_read_value(startup_option, kStartupOptionsOptionName,
-                                              option.name);
-                            try_to_read_value(startup_option, kStartupOptionsOptionArg, option.arg);
+                            read_value(startup_option, kStartupOptionsOptionKind, option.kind);
+                            read_value(startup_option, kStartupOptionsOptionName, option.name);
+                            read_value(startup_option, kStartupOptionsOptionArg, option.arg);
 
                             config.startup_options.push_back(option);
                         }
                     }
 
                     json machine_instance_refs{};
-                    if (try_to_read_value(startup_config, kModeInMachineInstanceRefs,
-                                          machine_instance_refs)) {
+                    if (read_value(startup_config, kModeInMachineInstanceRefs,
+                                   machine_instance_refs)) {
                         for (auto& machine_instance_ref : machine_instance_refs) {
                             ExecutionManifest::Process::StartupConfig::MachineInstanceRef
                                 mach_inst_ref{};
-                            try_to_read_value(machine_instance_ref, kFunctionGroup,
-                                              mach_inst_ref.function_group);
-                            try_to_read_value(machine_instance_ref, kMode, mach_inst_ref.mode);
+                            read_value(machine_instance_ref, kFunctionGroup,
+                                       mach_inst_ref.function_group);
+                            read_value(machine_instance_ref, kMode, mach_inst_ref.mode);
 
                             config.machine_instance_refs.push_back(mach_inst_ref);
                         }
