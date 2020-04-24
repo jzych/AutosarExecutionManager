@@ -1,0 +1,26 @@
+{
+    "Application_manifest": {
+        "Application_manifest_id": "test_app",
+        "Process": [
+            {
+                "Mode_dependent_startup_configs": [
+                    {
+                        "Startup_options": [
+                            {
+                                "Option_kind": "commandLineShortForm",
+                                "Option_name": "name",
+                                "Option_arg": "as"
+                            }
+                        ],
+                        "Mode_in_machine_instance_refs": [
+                            {
+                                "Function_group": "MachineState",
+                                "Mode": "Running"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

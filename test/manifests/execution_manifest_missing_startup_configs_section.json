@@ -1,0 +1,10 @@
+{
+    "Application_manifest": {
+        "Application_manifest_id": "test_app",
+        "Process": [
+            {
+                "Process_name": "Proc_1"
+            }
+        ]
+    }
+}
