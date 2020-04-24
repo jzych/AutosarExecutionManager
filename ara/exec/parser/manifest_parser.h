@@ -88,3 +88,4 @@ private:
 }  // namespace ara
 
 #endif  // ARA_EXEC_PARSER_MANIFEST_PARSER_H_
+

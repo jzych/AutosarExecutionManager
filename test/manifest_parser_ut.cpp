@@ -130,14 +130,11 @@ TEST(AraExecParserParseManifest, ExecutionManifestAllKeysUsedSuccess)
     }\
   }"};
 
-    if (create_manifest(manifest_path, manifest_content)) {
-        auto manifest = parse_manifest(manifest_path);
-        const auto* exec_man = manifest.get_execution();
-        ASSERT_EQ(expected_manifest, *exec_man);
-    }
-    else {
-        ASSERT_TRUE(false) << "Unable to create test manifest";
-    }
+    ManifestParser mp{};
+    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
+        << "Unable to create test manifest";
+    auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
+    ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestManifestIdMissingSuccess)
@@ -206,14 +203,11 @@ TEST(AraExecParserParseManifest, ExecutionManifestManifestIdMissingSuccess)
     }\
   }"};
 
-    if (create_manifest(manifest_path, manifest_content)) {
-        auto manifest = parse_manifest(manifest_path);
-        const auto* exec_man = manifest.get_execution();
-        ASSERT_EQ(expected_manifest, *exec_man);
-    }
-    else {
-        ASSERT_TRUE(false) << "Unable to create test manifest";
-    }
+    ManifestParser mp{};
+    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
+        << "Unable to create test manifest";
+    auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
+    ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestStartupConfigsSectionMissingSuccess)
@@ -247,14 +241,11 @@ TEST(AraExecParserParseManifest, ExecutionManifestStartupConfigsSectionMissingSu
     }\
   }"};
 
-    if (create_manifest(manifest_path, manifest_content)) {
-        auto manifest = parse_manifest(manifest_path);
-        const auto* exec_man = manifest.get_execution();
-        ASSERT_EQ(expected_manifest, *exec_man);
-    }
-    else {
-        ASSERT_TRUE(false) << "Unable to create test manifest";
-    }
+    ManifestParser mp{};
+    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
+        << "Unable to create test manifest";
+    auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
+    ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestStartupOptionsSectionMissingSuccess)
@@ -309,14 +300,11 @@ TEST(AraExecParserParseManifest, ExecutionManifestStartupOptionsSectionMissingSu
     }\
   }"};
 
-    if (create_manifest(manifest_path, manifest_content)) {
-        auto manifest = parse_manifest(manifest_path);
-        const auto* exec_man = manifest.get_execution();
-        ASSERT_EQ(expected_manifest, *exec_man);
-    }
-    else {
-        ASSERT_TRUE(false) << "Unable to create test manifest";
-    }
+    ManifestParser mp{};
+    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
+        << "Unable to create test manifest";
+    auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
+    ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestMachineInstanceRefsSuccess)
@@ -375,14 +363,11 @@ TEST(AraExecParserParseManifest, ExecutionManifestMachineInstanceRefsSuccess)
     }\
   }"};
 
-    if (create_manifest(manifest_path, manifest_content)) {
-        auto manifest = parse_manifest(manifest_path);
-        const auto* exec_man = manifest.get_execution();
-        ASSERT_EQ(expected_manifest, *exec_man);
-    }
-    else {
-        ASSERT_TRUE(false) << "Unable to create test manifest";
-    }
+    ManifestParser mp{};
+    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
+        << "Unable to create test manifest";
+    auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
+    ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestProcessNameMissingSuccess)
@@ -451,14 +436,11 @@ TEST(AraExecParserParseManifest, ExecutionManifestProcessNameMissingSuccess)
     }\
   }"};
 
-    if (create_manifest(manifest_path, manifest_content)) {
-        auto manifest = parse_manifest(manifest_path);
-        const auto* exec_man = manifest.get_execution();
-        ASSERT_EQ(expected_manifest, *exec_man);
-    }
-    else {
-        ASSERT_TRUE(false) << "Unable to create test manifest";
-    }
+    ManifestParser mp{};
+    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
+        << "Unable to create test manifest";
+    auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
+    ASSERT_EQ(expected_manifest, obtained_manifest);
 }
 
 TEST(AraExecParserParseManifest, ExecutionManifestProcessSectionMissingSuccess)
@@ -474,12 +456,9 @@ TEST(AraExecParserParseManifest, ExecutionManifestProcessSectionMissingSuccess)
     const std::string manifest_content{
         "{\"Application_manifest\": { \"Application_manifest_id\": \"" + manifest_id + "\"}}"};
 
-    if (create_manifest(manifest_path, manifest_content)) {
-        auto manifest = parse_manifest(manifest_path);
-        const auto* exec_man = manifest.get_execution();
-        ASSERT_EQ(expected_manifest, *exec_man);
-    }
-    else {
-        ASSERT_TRUE(false) << "Unable to create test manifest";
-    }
+    ManifestParser mp{};
+    ASSERT_TRUE(create_manifest(manifest_path, manifest_content))
+        << "Unable to create test manifest";
+    auto obtained_manifest = mp.parse_execution_manifest(manifest_path);
+    ASSERT_EQ(expected_manifest, obtained_manifest);
 }

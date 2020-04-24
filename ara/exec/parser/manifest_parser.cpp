@@ -224,3 +224,4 @@ void ManifestParser::validate_content(const json& /*json_obj*/,
 }  // namespace parser
 }  // namespace exec
 }  // namespace ara
+
