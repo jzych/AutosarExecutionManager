@@ -112,8 +112,8 @@ bool try_to_read_value(const json& json_obj, const std::string& key, T& output_v
     T tmp{};
     try {
         tmp = json_obj.at(key);
-    } catch (json::out_of_range) {
-        std::cerr << "ara::exec::parser::try_to_read_value -> unable to read key: " << key
+    } catch (json::exception& e) {
+        std::cerr << "ara::exec::parser::try_to_read_value -> " << e.what()
                   << '\n';  // development purposes
         return false;
     }
@@ -124,15 +124,17 @@ bool try_to_read_value(const json& json_obj, const std::string& key, T& output_v
 ExecutionManifest ManifestParser::parse_execution_manifest(const std::string& path) noexcept(false)
 {
     using namespace EMJsonKeys;
-    auto manifest_json{read_manifest_file(path)};
+    auto manifest_json_full = read_manifest_file(path);
     ExecutionManifest man{};
-    validate_content(manifest_json, kAsVector);
-    try_to_read_value(manifest_json, kApplicationManifest, manifest_json);
+    validate_content(manifest_json_full, kAsVector);
 
-    try_to_read_value(manifest_json, kApplicationManifestId, man.manifest_id);
+    json manifest_json_content{};
+    try_to_read_value(manifest_json_full, kApplicationManifest, manifest_json_content);
+
+    try_to_read_value(manifest_json_content, kApplicationManifestId, man.manifest_id);
 
     json processes{};
-    if (try_to_read_value(manifest_json, kProcess, processes)) {
+    if (try_to_read_value(manifest_json_content, kProcess, processes)) {
         for (auto& process : processes) {
             ExecutionManifest::Process proc{};
             try_to_read_value(process, kProcessName, proc.name);
@@ -199,7 +201,7 @@ json ManifestParser::read_manifest_file(const std::string& path) noexcept(false)
             "ara::com::exec::parser::parse_manifest -> cannot open manifest: " + path + "\n");
     }
 
-    json manifest_json;
+    json manifest_json{};
 
     try {
         manifest_content >> manifest_json;
@@ -224,4 +226,3 @@ void ManifestParser::validate_content(const json& /*json_obj*/,
 }  // namespace parser
 }  // namespace exec
 }  // namespace ara
-
