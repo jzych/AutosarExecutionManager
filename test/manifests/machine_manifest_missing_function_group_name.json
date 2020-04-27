@@ -1,0 +1,20 @@
+{
+    "Machine_manifest": {
+        "Machine_manifest_id": "test_machine",
+        "Mode_declaration_group": [
+            {
+                "Mode_declarations": [
+                    {
+                      "Mode": "Starting-up"
+                    },
+                    {
+                      "Mode": "Running"
+                    },
+                    {
+                      "Mode": "Shuttingdown"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -4,6 +4,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <vector>
 
 namespace ara {
 namespace exec {
@@ -56,7 +57,25 @@ struct ExecutionManifest
 
 struct MachineManifest
 {
-    // TODO add proper members
+    struct ModeDeclarationGroup
+    {
+        struct ModeDeclaration
+        {
+            std::string mode{};
+            bool operator==(const ModeDeclaration&) const noexcept;
+            bool operator!=(const ModeDeclaration&) const noexcept;
+        };
+
+        std::string function_group_name{};
+        std::vector<ModeDeclaration> mode_declarations{};
+        bool operator==(const ModeDeclarationGroup&) const noexcept;
+        bool operator!=(const ModeDeclarationGroup&) const noexcept;
+    };
+
+    std::string manifest_id{};
+    std::vector<ModeDeclarationGroup> mode_declaration_groups{};
+    bool operator==(const MachineManifest&) const noexcept;
+    bool operator!=(const MachineManifest&) const noexcept;
 };
 
 class IManifestParser

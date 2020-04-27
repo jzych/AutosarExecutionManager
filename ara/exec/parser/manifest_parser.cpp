@@ -67,6 +67,42 @@ bool ExecutionManifest::Process::StartupConfig::MachineInstanceRef::operator!=(
     return !(*this == other);
 }
 
+bool MachineManifest::operator==(const MachineManifest& other) const noexcept
+{
+    return (manifest_id == other.manifest_id) &&
+           (mode_declaration_groups == other.mode_declaration_groups);
+}
+
+bool MachineManifest::operator!=(const MachineManifest& other) const noexcept
+{
+    return !(*this == other);
+}
+
+bool MachineManifest::ModeDeclarationGroup::operator==(const ModeDeclarationGroup& other) const
+    noexcept
+{
+    return (function_group_name == other.function_group_name) &&
+           (mode_declarations == other.mode_declarations);
+}
+
+bool MachineManifest::ModeDeclarationGroup::operator!=(const ModeDeclarationGroup& other) const
+    noexcept
+{
+    return !(*this == other);
+}
+
+bool MachineManifest::ModeDeclarationGroup::ModeDeclaration::operator==(
+    const ModeDeclaration& other) const noexcept
+{
+    return (mode == other.mode);
+}
+
+bool MachineManifest::ModeDeclarationGroup::ModeDeclaration::operator!=(
+    const ModeDeclaration& other) const noexcept
+{
+    return !(*this == other);
+}
+
 namespace {
 namespace EMJsonKeys {
 const std::string kApplicationManifest = "Application_manifest";
@@ -99,9 +135,15 @@ const std::vector<std::string> kAsVector{kApplicationManifest,
 
 namespace MMJsonKeys {
 const std::string kMachineManifest = "Machine_manifest";
-// TODO add rest of the keys
+const std::string kMachineManifestId = "Machine_manifest_id";
+const std::string kModeDeclarationGroup = "Mode_declaration_group";
+const std::string kFunctionGroupName = "Function_group_name";
+const std::string kModeDeclarations = "Mode_declarations";
+const std::string kMode = "Mode";
 
-const std::vector<std::string> kAsVector{kMachineManifest /* TODO add rest of the keys */};
+const std::vector<std::string> kAsVector{kMachineManifest,      kMachineManifestId,
+                                         kModeDeclarationGroup, kFunctionGroupName,
+                                         kModeDeclarations,     kMode};
 }  // namespace MMJsonKeys
 
 }  // anonymous namespace
@@ -183,13 +225,34 @@ ExecutionManifest ManifestParser::parse_execution_manifest(const std::string& pa
 MachineManifest ManifestParser::parse_machine_manifest(const std::string& path) noexcept(false)
 {
     using namespace MMJsonKeys;
-    auto manifest_json{read_manifest_file(path)};
+    auto manifest_json_full = read_manifest_file(path);
+    MachineManifest man{};
+    validate_content(manifest_json_full, kAsVector);
 
-    validate_content(manifest_json, kAsVector);
+    json manifest_json_content{};
+    read_value(manifest_json_full, kMachineManifest, manifest_json_content);
 
-    // TODO implement rest of the method
+    read_value(manifest_json_content, kMachineManifestId, man.manifest_id);
 
-    return MachineManifest();
+    json mode_declaration_groups{};
+    if (read_value(manifest_json_content, kModeDeclarationGroup, mode_declaration_groups)) {
+        for (auto& mode_declaration_group : mode_declaration_groups) {
+            MachineManifest::ModeDeclarationGroup mdg{};
+            read_value(mode_declaration_group, kFunctionGroupName, mdg.function_group_name);
+
+            json mode_declarations{};
+            if (read_value(mode_declaration_group, kModeDeclarations, mode_declarations)) {
+                for (auto& mode_declaration : mode_declarations) {
+                    MachineManifest::ModeDeclarationGroup::ModeDeclaration md{};
+
+                    read_value(mode_declaration, kMode, md.mode);
+                    mdg.mode_declarations.push_back(md);
+                }
+            }
+            man.mode_declaration_groups.push_back(mdg);
+        }
+    }
+    return man;
 }
 
 json ManifestParser::read_manifest_file(const std::string& path) noexcept(false)
