@@ -49,11 +49,13 @@ file(GLOB EM_SOURCES
     ara/core/*.h
     ara/com/*.h
     ara/com/*.cpp
+    ara/com/ipc/inc/*.h
+    ara/com/ipc/src/*.cpp
 )
 
 add_executable(${PROJECT_NAME} ${EM_SOURCES})
 target_link_libraries(${PROJECT_NAME} pthread nlohmann_json)
-target_include_directories(${PROJECT_NAME} PRIVATE ara/exec/ ara/exec/praser/ ara/com/ ara/core/)
+target_include_directories(${PROJECT_NAME} PRIVATE ara/exec/ ara/exec/praser/ ara/com/ ara/com/ipc/inc ara/core/)
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -Wpedantic -Wextra)
 
 file(GLOB TEST_SOURCES
@@ -62,10 +64,24 @@ file(GLOB TEST_SOURCES
     ara/core/*.h
     ara/com/*.h
     ara/com/*.cpp
+    ara/com/ipc/inc/*.h
+    ara/com/ipc/src/*.cpp
     test/*.cpp
+    test/socket_mock/socket_mock.h
 )
+
 
 link_libraries(gtest)
 add_executable(${PROJECT_NAME}-ut ${TEST_SOURCES})
-target_include_directories(${PROJECT_NAME}-ut PRIVATE ara/exec/ ara/exec/parser/ ara/com/ ara/core/)
-target_link_libraries(${PROJECT_NAME}-ut nlohmann_json)
+add_library(UX_WRAPS test/socket_mock/ux_wraps.c)
+target_include_directories(${PROJECT_NAME}-ut PRIVATE ara/exec/ ara/exec/parser/ ara/com/ ara/com/ipc/inc ara/core/ test/socket_mock/)
+target_link_libraries(${PROJECT_NAME}-ut nlohmann_json
+        gmock
+            -Wl,--wrap=socket
+            -Wl,--wrap=close
+            -Wl,--wrap=remove
+            -Wl,--wrap=bind
+            -Wl,--wrap=listen
+            -Wl,--wrap=accept
+            -Wl,--wrap=connect
+        UX_WRAPS )
