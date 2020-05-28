@@ -59,16 +59,16 @@ public:
         return Result(E{std::forward<Args>(args)...});
     }
 
-    Result& operator= (Result const &other)
+    Result& operator=(Result const &other)
     {
         _data = other._data;
         return *this;
     }
 
-    Result& operator= (Result &&other) noexcept(std::is_nothrow_move_constructible<T>::value &&
-                                                std::is_nothrow_move_assignable<T>::value &&
-                                                std::is_nothrow_move_constructible<E>::value &&
-                                                std::is_nothrow_move_assignable<E>::value)
+    Result& operator=(Result &&other) noexcept(std::is_nothrow_move_constructible<T>::value &&
+                                               std::is_nothrow_move_assignable<T>::value &&
+                                               std::is_nothrow_move_constructible<E>::value &&
+                                               std::is_nothrow_move_assignable<E>::value)
     {
         _data = std::move(other._data);
         return *this;
@@ -192,7 +192,7 @@ public:
         e->ThrowAsException();
     }
 
-    T&& ValueOrThrow () &&noexcept(false)
+    T&& ValueOrThrow() &&noexcept(false)
     {
         T* ptr = boost::get<T>(&_data);
         if (ptr)
@@ -203,7 +203,7 @@ public:
     }
 
     template <typename F> // F must be compatibile to this interface: T f(E const&);
-    T Resolve (F &&f) const
+    T Resolve(F &&f) const
     {
         return HasValue() ? Value() : std::forward<F>(f)(Error());
     }
@@ -253,13 +253,13 @@ public:
         return Result(E{std::forward<Args>(args)...});
     }
 
-    Result& operator= (Result const &other)
+    Result& operator=(Result const &other)
     {
         _data = other._data;
         return *this;
     }
 
-    Result& operator= (Result &&other) noexcept(std::is_nothrow_move_constructible<E>::value &&
+    Result& operator=(Result &&other) noexcept(std::is_nothrow_move_constructible<E>::value &&
                                                 std::is_nothrow_move_assignable<E>::value)
     {
         _data = std::move(other._data);
@@ -271,6 +271,7 @@ public:
     {
         _data = T(args...);
     }
+
     template <typename...  Args>
     void EmplaceError(Args &&...  args)
     {
@@ -307,7 +308,7 @@ public:
         std::terminate();
     }
 
-    E&& Error () &&
+    E&& Error() &&
     {
         E* ptr = boost::get<E>(&_data);
         if (ptr)
@@ -342,32 +343,119 @@ public:
     }
 
     template <typename F> // F is expected to be compatible to this interface: void f(E const&);
-    void Resolve (F &&f) const
+    void Resolve(F &&f) const
     {
         return HasValue() ? Value() : std::forward<F>(f)(Error());
     }
 };
 
 template <typename T, typename E>
-bool operator== (Result<T, E> const &lhs, Result<T, E> const&rhs);
+bool operator==(Result<T, E> const &lhs, Result<T, E> const&rhs)
+{
+    if(lhs.HasValue() == rhs.HasValue())
+    {
+        if(lhs.HasValue())
+        {
+            return lhs.Value() == rhs.Value();
+        } else {
+            return lhs.Error() == rhs.Error();
+        }
+    }
+    return false;
+}
 template <typename T, typename E>
-bool operator!= (Result<T, E> const &lhs, Result<T, E> const&rhs);
+bool operator!=(Result<T, E> const &lhs, Result<T, E> const&rhs)
+{
+    if(lhs.HasValue() == rhs.HasValue())
+    {
+        if(lhs.HasValue())
+        {
+            return lhs.Value() != rhs.Value();
+        } else {
+            return lhs.Error() != rhs.Error();
+        }
+    }
+    return true;
+}
+
 template <typename T, typename E>
-bool operator== (Result<T, E> const &lhs, T const &rhs);
+bool operator==(Result<T, E> const &lhs, T const &rhs)
+{
+    if(lhs.HasValue())
+    {
+        return lhs.Value() == rhs;
+    }
+    return false;
+}
+
 template <typename T, typename E>
-bool operator== (T const &lhs, Result<T, E> const &rhs);
+bool operator==(T const &lhs, Result<T, E> const &rhs)
+{
+    if(rhs.HasValue())
+    {
+        return lhs == rhs.Value();
+    }
+    return false;
+}
+
 template <typename T, typename E>
-bool operator!= (Result<T, E> const &lhs, T const &rhs);
+bool operator!=(Result<T, E> const &lhs, T const &rhs)
+{
+    if(lhs.HasValue())
+    {
+        return lhs.Value() != rhs;
+    }
+    return true;
+}
 template <typename T, typename E>
-bool operator!= (T const &lhs, Result<T, E> const &rhs);
+bool operator!=(T const &lhs, Result<T, E> const &rhs)
+{
+    if(rhs.HasValue())
+    {
+        return lhs != rhs.Value();
+    }
+    return true;
+}
+
 template <typename T, typename E>
-bool operator== (Result<T, E> const &lhs, E const &rhs);
+bool operator==(Result<T, E> const &lhs, E const &rhs)
+{
+    if(!lhs.HasValue())
+    {
+        return lhs.Error() == rhs;
+    }
+    return false;
+}
+
 template <typename T, typename E>
-bool operator== (E const &lhs, Result<T, E> const &rhs);
+bool operator==(E const &lhs, Result<T, E> const &rhs)
+{
+    if(!rhs.HasValue())
+    {
+        return lhs == rhs.Error();
+    }
+    return false;
+}
+
 template <typename T, typename E>
-bool operator!= (Result<T, E> const &lhs, E const &rhs);
+bool operator!=(Result<T, E> const &lhs, E const &rhs)
+{
+    if(!rhs.HasValue())
+    {
+        return lhs.Error() != rhs;
+    }
+    return true;
+}
+
 template <typename T, typename E>
-bool operator!= (E const &lhs, Result<T, E> const &rhs);
+bool operator!=(E const &lhs, Result<T, E> const &rhs)
+{
+    if(!rhs.HasValue())
+    {
+        return lhs != rhs.Error();
+    }
+    return true;
+}
 
 template <typename T, typename E>
 void swap (Result<T, E> &lhs, Result<T, E> &rhs) noexcept(noexcept(lhs.Swap(rhs)))
