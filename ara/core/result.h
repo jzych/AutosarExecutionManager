@@ -17,22 +17,22 @@ public:
     using value_type = T;
     using error_type = E;
 
-    Result(T const &t): _data(t) {};
-    Result(T &&t): _data(std::move(t)) {};
-    explicit Result(E const &e): _data(e) {};
-    explicit Result(E &&e): _data(std::move(e)) {};
+    Result(value_type const &t): _data(t) {};
+    Result(value_type &&t): _data(std::move(t)) {};
+    explicit Result(error_type const &e): _data(e) {};
+    explicit Result(error_type &&e): _data(std::move(e)) {};
     Result(Result const &other): _data(other._data) {};
-    Result(Result &&other) noexcept(std::is_nothrow_move_constructible<T>::value &&
-                                    std::is_nothrow_move_constructible<E>::value)
+    Result(Result &&other) noexcept(std::is_nothrow_move_constructible<value_type>::value &&
+                                    std::is_nothrow_move_constructible<error_type>::value)
         : _data(std::move(other._data)) {};
     ~Result();
 
-    static Result FromValue(T const &t)
+    static Result FromValue(value_type const &t)
     {
         return Result(t);
     }
 
-    static Result FromValue(T &&t)
+    static Result FromValue(value_type &&t)
     {
         return Result(std::move(t));
     }
@@ -43,12 +43,12 @@ public:
         return Result(T{std::forward<Args>(args)...});
     }
 
-    static Result FromError(E const &e)
+    static Result FromError(error_type const &e)
     {
         return Result(e);
     }
 
-    static Result FromError(E &&e)
+    static Result FromError(error_type &&e)
     {
         return Result(std::move(e));
     }
@@ -65,10 +65,10 @@ public:
         return *this;
     }
 
-    Result& operator=(Result &&other) noexcept(std::is_nothrow_move_constructible<T>::value &&
-                                               std::is_nothrow_move_assignable<T>::value &&
-                                               std::is_nothrow_move_constructible<E>::value &&
-                                               std::is_nothrow_move_assignable<E>::value)
+    Result& operator=(Result &&other) noexcept(std::is_nothrow_move_constructible<value_type>::value &&
+                                               std::is_nothrow_move_assignable<value_type>::value &&
+                                               std::is_nothrow_move_constructible<error_type>::value &&
+                                               std::is_nothrow_move_assignable<error_type>::value)
     {
         _data = std::move(other._data);
         return *this;
@@ -79,20 +79,20 @@ public:
     {
 
         // Unfortunately, Boost.Variant does not support emplace(), so we fall back to assignment here.
-        _data = std::move(T(std::forward<Args>(args)...));
+        _data = std::move(value_type(std::forward<Args>(args)...));
     }
 
     template <typename... Args>
     void EmplaceError(Args &&... args)
     {
         // Unfortunately, Boost.Variant does not support emplace(), so we fall back to assignment here.
-        _data = std::move(E(std::forward<Args>(args)...));
+        _data = std::move(error_type(std::forward<Args>(args)...));
     }
 
-    void Swap(Result &other) noexcept(std::is_nothrow_move_constructible<T>::value &&
-                                      std::is_nothrow_move_assignable<T>::value &&
-                                      std::is_nothrow_move_constructible<E>::value &&
-                                      std::is_nothrow_move_assignable<E>::value)
+    void Swap(Result &other) noexcept(std::is_nothrow_move_constructible<value_type>::value &&
+                                      std::is_nothrow_move_assignable<value_type>::value &&
+                                      std::is_nothrow_move_constructible<error_type>::value &&
+                                      std::is_nothrow_move_assignable<error_type>::value)
     {
         std::swap(_data, other._data);
     }
@@ -107,7 +107,7 @@ public:
         return HasValue();
     }
 
-    T const& operator*() const &
+    value_type const& operator*() const &
     {
         return Value();
     }
@@ -117,14 +117,14 @@ public:
         return Value();
     }
 
-    T const* operator->() const
+    value_type const* operator->() const
     {
         return std::addressof(Value());
     }
 
-    T const& Value() const &
+    value_type const& Value() const &
     {
-        T const* ptr = boost::get<T>(&_data);
+        value_type const* ptr = boost::get<value_type>(&_data);
         if (ptr)
             return *ptr;
         // throw?
@@ -133,16 +133,16 @@ public:
 
     T&& Value() &&
     {
-        T* ptr = boost::get<T>(&_data);
+        value_type* ptr = boost::get<value_type>(&_data);
         if (ptr)
             return std::move(*ptr);
         // throw?
         std::terminate();
     }
 
-    E const& Error() const &
+    error_type const& Error() const &
     {
-        E const* ptr = boost::get<E>(&_data);
+        error_type const* ptr = boost::get<error_type>(&_data);
         if (ptr)
             return *ptr;
         // throw?
@@ -151,7 +151,7 @@ public:
 
     E&& Error() &&
     {
-        E* ptr = boost::get<E>(&_data);
+        error_type* ptr = boost::get<error_type>(&_data);
         if (ptr)
             return std::move(*ptr);
         //throw?
@@ -159,56 +159,56 @@ public:
     }
 
     template <typename U>
-    T ValueOr(U &&defaultValue) const &
+    value_type ValueOr(U &&defaultValue) const &
     {
-        return HasValue() ? Value() : static_cast<T>(std::forward<U>(defaultValue));
+        return HasValue() ? Value() : static_cast<value_type>(std::forward<U>(defaultValue));
     }
 
     template <typename U>
-    T ValueOr(U &&defaultValue) &&
+    value_type ValueOr(U &&defaultValue) &&
     {
-        return HasValue() ? std::move(Value()) : static_cast<T>(std::forward<U>(defaultValue));
+        return HasValue() ? std::move(Value()) : static_cast<value_type>(std::forward<U>(defaultValue));
     }
 
     template <typename G>
-    E ErrorOr(G &&defaultError) const
+    error_type ErrorOr(G &&defaultError) const
     {
-        return HasValue() ? static_cast<E>(std::forward<G>(defaultError)) : Error();
+        return HasValue() ? static_cast<error_type>(std::forward<G>(defaultError)) : Error();
     }
 
     template <typename G>
     bool CheckError(G &&error) const
     {
-        return HasValue() ? false : (Error() == static_cast<E>(std::forward<G>(error)));
+        return HasValue() ? false : (Error() == static_cast<error_type>(std::forward<G>(error)));
     }
 
-    T const& ValueOrThrow() const& noexcept(false)
+    value_type const& ValueOrThrow() const& noexcept(false)
     {
-        T const* ptr = boost::get<T>(&_data);
+        value_type const* ptr = boost::get<value_type>(&_data);
         if (ptr)
             return *ptr;
 
-        E* e = boost::get<E>(&_data);
+        error_type* e = boost::get<error_type>(&_data);
         e->ThrowAsException();
     }
 
     T&& ValueOrThrow() &&noexcept(false)
     {
-        T* ptr = boost::get<T>(&_data);
+        value_type* ptr = boost::get<value_type>(&_data);
         if (ptr)
             return std::move(*ptr);
 
-        E* e = boost::get<E>(&_data);
+        error_type* e = boost::get<error_type>(&_data);
         e->ThrowAsException();
     }
 
-    template <typename F> // F must be compatibile to this interface: T f(E const&);
-    T Resolve(F &&f) const
+    template <typename F> // F must be compatibile to this interface: value_type f(error_type const&);
+    value_type Resolve(F &&f) const
     {
         return HasValue() ? Value() : std::forward<F>(f)(Error());
     }
 
-    template <typename F> // F is expected to be compatible to one of these two interfaces: Result<XXX, E> f(Tconst&); or XXX f(T const&);
+    template <typename F> // F is expected to be compatible to one of these two interfaces: Result<XXX, E> f(Tconst&); or XXX f(value_type const&);
     auto Bind (F &&f) const; // TODO
 };
 
@@ -225,10 +225,10 @@ public:
     using error_type = E;
 
     Result() noexcept: _data(T{}) {};
-    explicit Result(E const &e): _data(e) {};
-    explicit Result(E &&e): _data(std::move(e)) {};
+    explicit Result(error_type const &e): _data(e) {};
+    explicit Result(error_type &&e): _data(std::move(e)) {};
     Result(Result const &other): _data(other._data) {};
-    Result(Result &&other) noexcept(std::is_nothrow_move_constructible<E>::value)
+    Result(Result &&other) noexcept(std::is_nothrow_move_constructible<error_type>::value)
         : _data(std::move(other._data)) {};
     ~Result();
 
@@ -237,12 +237,12 @@ public:
         return Result();
     }
 
-    static Result FromError(E const &e)
+    static Result FromError(error_type const &e)
     {
         return Result(e);
     }
 
-    static Result FromError(E &&e)
+    static Result FromError(error_type &&e)
     {
         return Result(std::move(e));
     }
@@ -259,8 +259,8 @@ public:
         return *this;
     }
 
-    Result& operator=(Result &&other) noexcept(std::is_nothrow_move_constructible<E>::value &&
-                                                std::is_nothrow_move_assignable<E>::value)
+    Result& operator=(Result &&other) noexcept(std::is_nothrow_move_constructible<error_type>::value &&
+                                                std::is_nothrow_move_assignable<error_type>::value)
     {
         _data = std::move(other._data);
         return *this;
@@ -276,11 +276,11 @@ public:
     void EmplaceError(Args &&...  args)
     {
         // Unfortunately, Boost.Variant does not support emplace(), so we fall back to assignment here.
-        _data = std::move(E(std::forward<Args>(args)...));
+        _data = std::move(error_type(std::forward<Args>(args)...));
     }
 
-    void Swap(Result &other) noexcept(std::is_nothrow_move_constructible<E>::value &&
-                                      std::is_nothrow_move_assignable<E>::value)
+    void Swap(Result &other) noexcept(std::is_nothrow_move_constructible<error_type>::value &&
+                                      std::is_nothrow_move_assignable<error_type>::value)
     {
         std::swap(_data, other._data);
     }
@@ -299,9 +299,9 @@ public:
 
     void Value() const {} // Do nothing. This function only exists for helping with generic programming.
 
-    E const& Error() const &
+    error_type const& Error() const &
     {
-        E const* ptr = boost::get<E>(&_data);
+        error_type const* ptr = boost::get<error_type>(&_data);
         if (ptr)
             return *ptr;
         // throw?
@@ -310,7 +310,7 @@ public:
 
     E&& Error() &&
     {
-        E* ptr = boost::get<E>(&_data);
+        error_type* ptr = boost::get<error_type>(&_data);
         if (ptr)
             return std::move(*ptr);
         // throw?
@@ -321,28 +321,28 @@ public:
     void ValueOr(U &&defaultValue) const {} // Do nothing. This function only exists for helping with generic programming.
 
     template <typename G>
-    E ErrorOr(G &&defaultError) const
+    error_type ErrorOr(G &&defaultError) const
     {
-        return HasValue() ? static_cast<E>(std::forward<G>(defaultError)) : Error();
+        return HasValue() ? static_cast<error_type>(std::forward<G>(defaultError)) : Error();
     }
 
     template <typename G>
     bool CheckError(G&& error) const
     {
-        return HasValue() ? false : (Error() == static_cast<E>(std::forward<G>(error)));
+        return HasValue() ? false : (Error() == static_cast<error_type>(std::forward<G>(error)));
     }
 
     void ValueOrThrow() const noexcept(false)
     {
-        T const* ptr = boost::get<T>(&_data);
+        value_type const* ptr = boost::get<value_type>(&_data);
         if (ptr)
             return;
 
-        E* e = boost::get<E>(&_data);
+        error_type* e = boost::get<error_type>(&_data);
         e->ThrowAsException();
     }
 
-    template <typename F> // F is expected to be compatible to this interface: void f(E const&);
+    template <typename F> // F is expected to be compatible to this interface: void f(error_type const&);
     void Resolve(F &&f) const
     {
         return HasValue() ? Value() : std::forward<F>(f)(Error());
